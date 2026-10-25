@@ -1,4 +1,4 @@
-const CACHE_NAME = 'militar-player-v1';
+const CACHE_NAME = 'militar-player-v3';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/sw.js'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS).catch(() => {})));
@@ -10,15 +10,12 @@ self.addEventListener('activate', (event) => {
 });
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request).then((cached) => {
-    if (cached) return cached;
-    return fetch(event.request).then((response) => {
+  event.respondWith(
+    fetch(event.request).then((response) => {
       if (!response || response.status !== 200 || response.type !== 'basic') return response;
       const clone = response.clone();
       caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
       return response;
-    }).catch(() => {
-      if (event.request.mode === 'navigate') return caches.match('/index.html') || caches.match('/');
-    });
-  }));
+    }).catch(() => caches.match(event.request).then((cached) => cached || (event.request.mode === 'navigate' ? caches.match('/index.html') : undefined)))
+  );
 });
