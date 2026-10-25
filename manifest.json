@@ -1,0 +1,18 @@
+{
+  "name": "MILITAR Audio Player",
+  "short_name": "MILITAR Player",
+  "description": "Player audio offline cu import local de fișiere",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0a'/><text y='.9em' font-size='70' x='50%' text-anchor='middle' fill='%23c9a84c'>M</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
