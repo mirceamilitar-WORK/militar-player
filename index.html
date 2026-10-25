@@ -1,11 +1,85 @@
-<html lang="ro"><head>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MILITAR Player">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="manifest" href="manifest.json">
   <title>MILITAR Player</title>
-  <!-- Full player content is large (~80KB). Please download the file from the chat and upload it via GitHub web UI or Vercel dashboard. -->
-</head><body><div style="padding:40px;text-align:center;font-family:system-ui;color:#c9a84c;background:#0a0a0a;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px"><h1>MILITAR Player</h1><p style="color:#888">Versiunea completă trebuie încărcată manual din cauza mărimii.</p><p style="color:#888">Descarcă fișierul din chat și urcă-l ca index.html pe acest repo.</p><a href="https://militar-player.vercel.app" style="color:#c9a84c">Deschide versiunea actuală pe Vercel</a></div><script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}</script></body></html>
+  <style>
+    :root { --bg:#0a0a0a; --surface:#141414; --surface-2:#1c1c1c; --border:#2a2a2a; --gold:#c9a84c; --gold-dim:#8a7335; --text:#e8e8e8; --text-muted:#888; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background-image:radial-gradient(ellipse at 20% 20%,rgba(201,168,76,.06) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(201,168,76,.04) 0%,transparent 50%); }
+    .player { width:100%; max-width:420px; background:var(--surface); border:1px solid var(--border); border-radius:20px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,.7),0 0 0 1px rgba(201,168,76,.08); }
+    .header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid var(--border); }
+    .brand-name { font-size:18px; font-weight:700; letter-spacing:3px; color:var(--gold); text-transform:uppercase; }
+    .brand-sub { font-size:11px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; }
+    .now-playing { padding:28px 24px 20px; text-align:center; }
+    .cover { width:180px; height:180px; margin:0 auto 20px; border-radius:16px; background:var(--surface-2); border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+    .clock-time { font-size:36px; font-weight:600; color:var(--gold); letter-spacing:2px; font-variant-numeric:tabular-nums; }
+    .clock-date { font-size:13px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
+    .clock-day { font-size:11px; color:var(--gold-dim); letter-spacing:1.5px; text-transform:uppercase; }
+    .track-title { font-size:17px; font-weight:600; margin-bottom:4px; }
+    .track-artist { font-size:13px; color:var(--text-muted); }
+    .progress-section { padding:0 24px 16px; }
+    .progress-bar { height:5px; background:var(--surface-2); border-radius:3px; }
+    .time-row { display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--text-muted); }
+    .controls { display:flex; align-items:center; justify-content:center; gap:12px; padding:8px 24px 28px; }
+    .play-btn { width:56px; height:56px; border-radius:50%; background:var(--gold); border:none; color:#0a0a0a; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .ctrl-btn { width:44px; height:44px; border-radius:50%; border:none; background:transparent; color:var(--text-muted); font-size:18px; cursor:pointer; }
+    .playlist-section { padding:16px 24px; border-top:1px solid var(--border); }
+    .playlist-title { font-size:12px; color:var(--text-muted); letter-spacing:1px; margin-bottom:8px; }
+    @media (max-width:480px) { body { padding:12px; } .cover { width:140px; height:140px; } .clock-time { font-size:28px; } }
+  </style>
+</head>
+<body>
+  <div class="player">
+    <div class="header">
+      <div>
+        <div class="brand-name">MILITAR</div>
+        <div class="brand-sub">Audio Player</div>
+      </div>
+    </div>
+    <div class="now-playing">
+      <div class="cover">
+        <div class="clock-time" id="clockTime">00:00:00</div>
+        <div class="clock-date" id="clockDate">--</div>
+        <div class="clock-day" id="clockDay">--</div>
+      </div>
+      <div class="track-title" id="trackTitle">Niciun fișier selectat</div>
+      <div class="track-artist" id="trackArtist">Importă muzică pentru a începe</div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-bar"></div>
+      <div class="time-row"><span>0:00</span><span>0:00</span></div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn">⇄</button>
+      <button class="ctrl-btn">⏮</button>
+      <button class="play-btn" id="playBtn">▶</button>
+      <button class="ctrl-btn">⏭</button>
+      <button class="ctrl-btn">↻</button>
+    </div>
+    <div class="playlist-section">
+      <div class="playlist-title">PLAYLIST 0 PIESE</div>
+      <div style="color:var(--text-muted);font-size:13px;">Folosește butoanele din dreapta sus pentru a importa (versiune restaurată)</div>
+    </div>
+  </div>
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockTime').textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+      const days = ['DUMINICĂ','LUNI','MARȚI','MIERCURI','JOI','VINERI','SÂMBĂTĂ'];
+      const months = ['IAN','FEB','MAR','APR','MAI','IUN','IUL','AUG','SEP','OCT','NOV','DEC'];
+      document.getElementById('clockDate').textContent = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+      document.getElementById('clockDay').textContent = days[now.getDay()];
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
