@@ -1,5 +1,5 @@
-const CACHE_NAME = "militar-player-v5";
-const ASSETS = ["/", "/index.html", "/manifest.json", "/sw.js"];
+const CACHE_NAME = "militar-player-v6";
+const ASSETS = ["/", "/index.html", "/manifest.json", "/sw.js", "/app.js"];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS).catch(() => {})));
   self.skipWaiting();
